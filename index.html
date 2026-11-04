@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#8B1A1A">
+<title>Chinese Corner · Taboo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@600;700&family=Lora:ital@1&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>/* TMS consumer track. See CLAUDE.md "Brand rules". */
+:root {
+  --crimson: #8B1A1A;
+  --gold: #F8D346;
+  --cream: #FDF7EF;
+  --silk: #F8E8DD;
+  --teal: #00515D;
+  --slate: #6B6259;
+  --ink: #2A2420;
+  --line: #E9D9CC;
+  --zh: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --ui: "Inter", system-ui, sans-serif;
+  --head: "Montserrat", "Inter", sans-serif;
+  --gloss: "Lora", Georgia, serif;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font: 16px/1.45 var(--ui);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.top {
+  background: var(--crimson);
+  color: #fff;
+  padding: calc(14px + env(safe-area-inset-top)) 20px 16px;
+  position: relative;
+  overflow: hidden;
+}
+.top::after {            /* low-opacity anchor character */
+  content: "学";
+  font-family: var(--zh);
+  font-weight: 700;
+  position: absolute;
+  right: -6px;
+  top: -18px;
+  font-size: 120px;
+  opacity: .09;
+  line-height: 1;
+}
+.brand { font: 600 12px/1 var(--ui); letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+h1 { font: 700 26px/1.1 var(--head); margin: 6px auto 0; }
+.top .brand, .top h1 { max-width: 488px; margin-left: auto; margin-right: auto; }   /* line up with main on wide screens */
+
+main { max-width: 520px; margin: 0 auto; padding: 16px 16px 32px; }
+
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.field-label { display: block; font: 600 14px/1.3 var(--ui); color: var(--slate); margin-bottom: 10px; }
+
+.stepper { display: flex; align-items: center; gap: 14px; }
+.stepper output { font: 700 28px/1 var(--head); min-width: 2ch; text-align: center; }
+.stepper.small { margin-top: 10px; }
+.stepper.small output { font-size: 20px; }
+.step {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--crimson);
+  background: #fff;
+  color: var(--crimson);
+  font: 600 22px/1 var(--ui);
+  cursor: pointer;
+}
+.step:disabled { opacity: .3; cursor: default; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.levels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.chip {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--cream);
+  color: var(--ink);
+  font: 600 15px/1 var(--ui);
+  cursor: pointer;
+}
+.chip[aria-pressed="true"] { background: var(--crimson); border-color: var(--crimson); color: #fff; }
+.chip .left { display: block; font: 400 11px/1.2 var(--ui); opacity: .8; margin-top: 2px; }
+.levels .chip { padding: 6px 4px; font-size: 14px; border-radius: 12px; }
+
+.toggle { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 15px; }
+.toggle input { width: 20px; height: 20px; accent-color: var(--crimson); }
+
+.player-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+.player-row input {
+  font: 500 15px/1.2 var(--ui);
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--cream);
+  width: 100%;
+}
+
+.msg { min-height: 1.4em; color: var(--crimson); font-size: 14px; margin: 4px 2px 10px; }
+.msg.ok { color: var(--slate); }
+
+button.primary, button.secondary {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  border-radius: 12px;
+  font: 600 17px/1 var(--ui);
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+button.primary { background: var(--crimson); color: #fff; border: 0; }
+button.primary:disabled { opacity: .45; cursor: default; }
+button.secondary { background: transparent; color: var(--crimson); border: 1.5px solid var(--crimson); }
+button.link { background: none; border: 0; color: var(--crimson); font: 600 14px var(--ui); text-decoration: underline; cursor: pointer; padding: 6px; }
+
+.hint { color: var(--slate); font-size: 14px; margin: 0 2px 12px; }
+
+.hand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--crimson);
+  border-radius: 12px;
+  padding: 12px 12px 12px 14px;
+  margin-bottom: 10px;
+}
+.hand.seen { border-left-color: var(--line); }
+.hand-name { flex: 1; font-weight: 600; }
+.hand-level { display: block; font-weight: 400; font-size: 13px; color: var(--slate); }
+.hand button {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font: 600 14px var(--ui);
+  cursor: pointer;
+  border: 1.5px solid var(--crimson);
+}
+.hand .show { background: var(--crimson); color: #fff; }
+.hand .copy { background: #fff; color: var(--crimson); }
+
+.used {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 18px; padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--slate); font-size: 13px;
+}
+
+/* Full-screen reveal: the three-voice stack */
+.reveal {
+  position: fixed; inset: 0;
+  background: var(--cream);
+  overflow-y: auto;
+  padding: calc(16px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom));
+  z-index: 10;
+}
+.reveal > * { max-width: 520px; margin-left: auto; margin-right: auto; }
+.reveal-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+#reveal-name { font: 700 22px/1.2 var(--head); color: var(--crimson); }
+.reveal-level { font: 600 13px var(--ui); color: var(--slate); }
+.words { list-style: none; padding: 0; margin: 0 auto 16px; }
+.words li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 14px;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+}
+.words li.chars-only { display: block; padding: 12px 16px; }
+.words li.chars-only .zh { font-size: 34px; }
+.zh { grid-row: span 2; font: 500 30px/1.15 var(--zh); color: var(--ink); }
+.py { font: 400 18.6px/1.25 var(--ui); color: var(--slate); }   /* about 62% of the Hanzi */
+.en { font: italic 15px/1.25 var(--gloss); color: var(--slate); }
+
+.words li.copy-li { display: block; }
+.copy-help { margin: 0 0 8px; font-size: 14px; color: var(--slate); }
+.copy-box {
+  width: 100%;
+  font: 17px/1.5 "Inter", "Noto Sans SC", sans-serif;   /* Inter first: cleaner tone marks */
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--cream);
+  resize: none;
+}
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom));
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: #fff;
+  padding: 10px 16px; border-radius: 999px;
+  font-size: 14px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s, transform .2s;
+  z-index: 20;
+}
+.toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">Chinese Corner</div>
+  <h1>Taboo</h1>
+</header>
+
+<main>
+  <!-- Setup -->
+  <section id="setup" class="screen">
+    <div class="card">
+      <label class="field-label" for="players">Players</label>
+      <div class="stepper" data-for="players">
+        <button type="button" class="step" data-step="-1" aria-label="Fewer players">−</button>
+        <output id="players">3</output>
+        <button type="button" class="step" data-step="1" aria-label="More players">+</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="field-label">Words for each player</span>
+      <div class="chips" id="per-chips"></div>
+      <div class="stepper small" data-for="per">
+        <button type="button" class="step" data-step="-1" aria-label="Fewer words">−</button>
+        <output id="per">6</output>
+        <button type="button" class="step" data-step="1" aria-label="More words">+</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="field-label">Level</span>
+      <label class="toggle">
+        <input type="checkbox" id="mixed">
+        <span>Players are at different levels</span>
+      </label>
+      <div id="one-level" class="levels"></div>
+      <div id="player-levels"></div>
+    </div>
+
+    <p id="setup-msg" class="msg" role="status"></p>
+    <button type="button" id="deal" class="primary">Deal the words</button>
+  </section>
+
+  <!-- Dealt -->
+  <section id="dealt" class="screen" hidden>
+    <p class="hint">Tap <b>Show</b> and pass the phone, or tap <b id="send-word">Copy</b> and send it on WhatsApp.</p>
+    <div id="hands"></div>
+    <button type="button" id="again" class="primary">New round, new words</button>
+    <button type="button" id="back" class="secondary">Change players or level</button>
+  </section>
+
+  <footer class="used">
+    <span id="used-count"></span>
+    <button type="button" id="reset" class="link">Start fresh</button>
+  </footer>
+</main>
+
+<!-- One player's words, full screen -->
+<div id="reveal" class="reveal" hidden role="dialog" aria-modal="true" aria-labelledby="reveal-name">
+  <div class="reveal-head">
+    <div id="reveal-name"></div>
+    <div id="reveal-level" class="reveal-level"></div>
+  </div>
+  <ol id="reveal-words" class="words"></ol>
+  <button type="button" id="hide" class="primary">Done, hide my words</button>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>window.CC_DATA = {"taboo": {"1": [{"hz": "爸爸", "py": "bàba", "en": "father"}, {"hz": "包子", "py": "bāozi", "en": "steamed bun"}, {"hz": "杯子", "py": "bēizi", "en": "cup"}, {"hz": "病人", "py": "bìngrén", "en": "patient"}, {"hz": "菜", "py": "cài", "en": "dish"}, {"hz": "茶", "py": "chá", "en": "tea"}, {"hz": "超市", "py": "chāoshì", "en": "supermarket"}, {"hz": "车", "py": "chē", "en": "car"}, {"hz": "出租车", "py": "chūzūchē", "en": "taxi"}, {"hz": "大学", "py": "dàxué", "en": "university"}, {"hz": "大学生", "py": "dàxuéshēng", "en": "university student"}, {"hz": "弟弟", "py": "dìdi", "en": "younger brother"}, {"hz": "电话", "py": "diànhuà", "en": "telephone"}, {"hz": "电脑", "py": "diànnǎo", "en": "computer"}, {"hz": "电视", "py": "diànshì", "en": "television"}, {"hz": "电影", "py": "diànyǐng", "en": "movie"}, {"hz": "电影院", "py": "diànyǐngyuàn", "en": "cinema"}, {"hz": "店", "py": "diàn", "en": "shop"}, {"hz": "儿子", "py": "érzi", "en": "son"}, {"hz": "饭", "py": "fàn", "en": "meal"}, {"hz": "饭店", "py": "fàndiàn", "en": "restaurant"}, {"hz": "房间", "py": "fángjiān", "en": "room"}, {"hz": "飞机", "py": "fēijī", "en": "airplane"}, {"hz": "服务员", "py": "fúwùyuán", "en": "waiter"}, {"hz": "哥哥", "py": "gēge", "en": "older brother"}, {"hz": "歌", "py": "gē", "en": "song"}, {"hz": "公司", "py": "gōngsī", "en": "company"}, {"hz": "狗", "py": "gǒu", "en": "dog"}, {"hz": "孩子", "py": "háizi", "en": "child"}, {"hz": "火车", "py": "huǒchē", "en": "train"}, {"hz": "机场", "py": "jīchǎng", "en": "airport"}, {"hz": "鸡蛋", "py": "jīdàn", "en": "egg"}, {"hz": "家", "py": "jiā", "en": "home"}, {"hz": "家人", "py": "jiārén", "en": "family members"}, {"hz": "饺子", "py": "jiǎozi", "en": "dumplings"}, {"hz": "姐姐", "py": "jiějie", "en": "older sister"}, {"hz": "老师", "py": "lǎoshī", "en": "teacher"}, {"hz": "妈妈", "py": "māma", "en": "mother"}, {"hz": "猫", "py": "māo", "en": "cat"}, {"hz": "妹妹", "py": "mèimei", "en": "younger sister"}, {"hz": "米饭", "py": "mǐfàn", "en": "rice"}, {"hz": "面包", "py": "miànbāo", "en": "bread"}, {"hz": "男朋友", "py": "nánpéngyou", "en": "boyfriend"}, {"hz": "牛奶", "py": "niúnǎi", "en": "milk"}, {"hz": "女儿", "py": "nǚ’ér", "en": "daughter"}, {"hz": "女朋友", "py": "nǚpéngyou", "en": "girlfriend"}, {"hz": "女士", "py": "nǚshì", "en": "lady"}, {"hz": "朋友", "py": "péngyou", "en": "friend"}, {"hz": "苹果", "py": "píngguǒ", "en": "apple"}, {"hz": "钱", "py": "qián", "en": "money"}, {"hz": "人", "py": "rén", "en": "person"}, {"hz": "商店", "py": "shāngdiàn", "en": "store"}, {"hz": "手机", "py": "shǒujī", "en": "cellphone"}, {"hz": "售货员", "py": "shòuhuòyuán", "en": "shop assistant"}, {"hz": "书", "py": "shū", "en": "book"}, {"hz": "书店", "py": "shūdiàn", "en": "bookshop"}, {"hz": "水", "py": "shuǐ", "en": "water"}, {"hz": "水果", "py": "shuǐguǒ", "en": "fruit"}, {"hz": "天气", "py": "tiānqì", "en": "weather"}, {"hz": "同学", "py": "tóngxué", "en": "classmate"}, {"hz": "晚饭", "py": "wǎnfàn", "en": "dinner"}, {"hz": "午饭", "py": "wǔfàn", "en": "lunch"}, {"hz": "小朋友", "py": "xiǎopéngyǒu", "en": "child"}, {"hz": "小学", "py": "xiǎoxué", "en": "primary school"}, {"hz": "小学生", "py": "xiǎoxuéshēng", "en": "primary school student"}, {"hz": "学生", "py": "xuéshēng", "en": "student"}, {"hz": "学校", "py": "xuéxiào", "en": "school"}, {"hz": "雪", "py": "xuě", "en": "snow"}, {"hz": "药", "py": "yào", "en": "medicine"}, {"hz": "衣服", "py": "yīfu", "en": "clothes"}, {"hz": "医生", "py": "yīshēng", "en": "doctor"}, {"hz": "医院", "py": "yīyuàn", "en": "hospital"}, {"hz": "椅子", "py": "yǐzi", "en": "chair"}, {"hz": "雨", "py": "yǔ", "en": "rain"}, {"hz": "早饭", "py": "zǎofàn", "en": "breakfast"}, {"hz": "中学", "py": "zhōngxué", "en": "middle school"}, {"hz": "中学生", "py": "zhōngxuéshēng", "en": "middle school student"}, {"hz": "桌子", "py": "zhuōzi", "en": "desk"}, {"hz": "字", "py": "zì", "en": "character (written)"}, {"hz": "北京", "py": "Běijīng", "en": "Beijing"}, {"hz": "大兴机场", "py": "Dàxīng Jīchǎng", "en": "Daxing Airport"}, {"hz": "法国", "py": "Fǎguó", "en": "France"}, {"hz": "汉字", "py": "Hànzì", "en": "Chinese character"}, {"hz": "泰国", "py": "Tàiguó", "en": "Thailand"}, {"hz": "西安", "py": "Xī’ān", "en": "Xi'an"}, {"hz": "中国", "py": "Zhōngguó", "en": "China"}, {"hz": "中文", "py": "Zhōngwén", "en": "Chinese (language)"}], "2": [{"hz": "爱情片", "py": "àiqíngpiàn", "en": "romance film"}, {"hz": "白色", "py": "báisè", "en": "white"}, {"hz": "包", "py": "bāo", "en": "bag"}, {"hz": "本子", "py": "běnzi", "en": "notebook"}, {"hz": "笔", "py": "bǐ", "en": "pen"}, {"hz": "车站", "py": "chēzhàn", "en": "station"}, {"hz": "床", "py": "chuáng", "en": "bed"}, {"hz": "蛋糕", "py": "dàngāo", "en": "cake"}, {"hz": "地铁", "py": "dìtiě", "en": "metro"}, {"hz": "饭馆", "py": "fànguǎn", "en": "restaurant"}, {"hz": "房子", "py": "fángzi", "en": "house"}, {"hz": "高中", "py": "gāozhōng", "en": "high school"}, {"hz": "黑色", "py": "hēisè", "en": "black"}, {"hz": "红色", "py": "hóngsè", "en": "red"}, {"hz": "花", "py": "huā", "en": "flower"}, {"hz": "画", "py": "huà", "en": "painting"}, {"hz": "画笔", "py": "huàbǐ", "en": "paintbrush"}, {"hz": "机票", "py": "jīpiào", "en": "plane ticket"}, {"hz": "教室", "py": "jiàoshì", "en": "classroom"}, {"hz": "酒店", "py": "jiǔdiàn", "en": "hotel"}, {"hz": "咖啡", "py": "kāfēi", "en": "coffee"}, {"hz": "考试", "py": "kǎoshì", "en": "exam"}, {"hz": "裤子", "py": "kùzi", "en": "trousers"}, {"hz": "篮球", "py": "lánqiú", "en": "basketball"}, {"hz": "礼物", "py": "lǐwù", "en": "gift"}, {"hz": "楼", "py": "lóu", "en": "building"}, {"hz": "路", "py": "lù", "en": "road"}, {"hz": "绿色", "py": "lǜsè", "en": "green"}, {"hz": "门", "py": "mén", "en": "door"}, {"hz": "门票", "py": "ménpiào", "en": "entrance ticket"}, {"hz": "面", "py": "miàn", "en": "noodles"}, {"hz": "奶茶", "py": "nǎichá", "en": "milk tea"}, {"hz": "奶奶", "py": "nǎinai", "en": "grandma"}, {"hz": "鸟", "py": "niǎo", "en": "bird"}, {"hz": "票", "py": "piào", "en": "ticket"}, {"hz": "妻子", "py": "qīzi", "en": "wife"}, {"hz": "球", "py": "qiú", "en": "ball"}, {"hz": "肉", "py": "ròu", "en": "meat"}, {"hz": "商场", "py": "shāngchǎng", "en": "shopping mall"}, {"hz": "身体", "py": "shēntǐ", "en": "body"}, {"hz": "生日", "py": "shēngrì", "en": "birthday"}, {"hz": "手", "py": "shǒu", "en": "hand"}, {"hz": "手表", "py": "shǒubiǎo", "en": "watch"}, {"hz": "书包", "py": "shūbāo", "en": "school bag"}, {"hz": "头", "py": "tóu", "en": "head"}, {"hz": "洗手间", "py": "xǐshǒujiān", "en": "restroom"}, {"hz": "眼睛", "py": "yǎnjing", "en": "eye"}, {"hz": "药店", "py": "yàodiàn", "en": "pharmacy"}, {"hz": "爷爷", "py": "yéye", "en": "grandpa"}, {"hz": "鱼", "py": "yú", "en": "fish"}, {"hz": "丈夫", "py": "zhàngfu", "en": "husband"}, {"hz": "足球", "py": "zúqiú", "en": "football"}, {"hz": "北京烤鸭", "py": "Běijīng Kǎoyā", "en": "Peking duck"}, {"hz": "北京大学", "py": "Běijīng Dàxué", "en": "Peking University"}, {"hz": "颐和园", "py": "Yíhé Yuán", "en": "the Summer Palace"}], "3": [{"hz": "阿姨", "py": "āyí", "en": "auntie"}, {"hz": "办公室", "py": "bàngōngshì", "en": "office"}, {"hz": "报纸", "py": "bàozhǐ", "en": "newspaper"}, {"hz": "笔记本（电脑）", "py": "bǐjìběn (diànnǎo)", "en": "laptop"}, {"hz": "宾馆", "py": "bīnguǎn", "en": "hotel"}, {"hz": "冰", "py": "bīng", "en": "ice"}, {"hz": "冰箱", "py": "bīngxiāng", "en": "refrigerator"}, {"hz": "菜单", "py": "càidān", "en": "menu"}, {"hz": "草地", "py": "cǎodì", "en": "lawn"}, {"hz": "草原", "py": "cǎoyuán", "en": "grassland"}, {"hz": "城市", "py": "chéngshì", "en": "city"}, {"hz": "充电宝", "py": "chōngdiànbǎo", "en": "power bank"}, {"hz": "初中", "py": "chūzhōng", "en": "junior high school"}, {"hz": "船", "py": "chuán", "en": "boat"}, {"hz": "词典", "py": "cídiǎn", "en": "dictionary"}, {"hz": "大人", "py": "dàren", "en": "adult"}, {"hz": "大熊猫", "py": "dàxióngmāo", "en": "giant panda"}, {"hz": "大衣", "py": "dàyī", "en": "coat"}, {"hz": "灯", "py": "dēng", "en": "lamp"}, {"hz": "地图", "py": "dìtú", "en": "map"}, {"hz": "电梯", "py": "diàntī", "en": "elevator"}, {"hz": "电子书", "py": "diànzǐshū", "en": "e-book"}, {"hz": "动物", "py": "dòngwù", "en": "animal"}, {"hz": "动物园", "py": "dòngwùyuán", "en": "zoo"}, {"hz": "短裤", "py": "duǎnkù", "en": "shorts"}, {"hz": "耳朵", "py": "ěrduo", "en": "ear"}, {"hz": "耳机", "py": "ěrjī", "en": "earphones"}, {"hz": "方便面", "py": "fāngbiànmiàn", "en": "instant noodles"}, {"hz": "风", "py": "fēng", "en": "wind"}, {"hz": "夫妻", "py": "fūqī", "en": "husband and wife"}, {"hz": "服务台", "py": "fúwùtái", "en": "front desk"}, {"hz": "公园", "py": "gōngyuán", "en": "park"}, {"hz": "海", "py": "hǎi", "en": "sea"}, {"hz": "河", "py": "hé", "en": "river"}, {"hz": "黑板", "py": "hēibǎn", "en": "blackboard"}, {"hz": "红绿灯", "py": "hóng-lǜdēng", "en": "traffic lights"}, {"hz": "护照", "py": "hùzhào", "en": "passport"}, {"hz": "花园", "py": "huāyuán", "en": "garden"}, {"hz": "画家", "py": "huàjiā", "en": "painter"}, {"hz": "黄色", "py": "huángsè", "en": "yellow"}, {"hz": "鸡", "py": "jī", "en": "chicken"}, {"hz": "脚", "py": "jiǎo", "en": "foot"}, {"hz": "街", "py": "jiē", "en": "street"}, {"hz": "经理", "py": "jīnglǐ", "en": "manager"}, {"hz": "景点", "py": "jǐngdiǎn", "en": "tourist spot"}, {"hz": "酒", "py": "jiǔ", "en": "alcohol"}, {"hz": "卡", "py": "kǎ", "en": "card"}, {"hz": "客人", "py": "kèrén", "en": "guest"}, {"hz": "空调", "py": "kōngtiáo", "en": "air conditioner"}, {"hz": "筷子", "py": "kuàizi", "en": "chopsticks"}, {"hz": "矿泉水", "py": "kuàngquánshuǐ", "en": "mineral water"}, {"hz": "老人", "py": "lǎorén", "en": "old person"}, {"hz": "脸", "py": "liǎn", "en": "face"}, {"hz": "邻居", "py": "línjū", "en": "neighbour"}, {"hz": "留学生", "py": "liúxuéshēng", "en": "international student"}, {"hz": "楼梯", "py": "lóutī", "en": "stairs"}, {"hz": "路口", "py": "lùkǒu", "en": "crossing"}, {"hz": "马", "py": "mǎ", "en": "horse"}, {"hz": "马路", "py": "mǎlù", "en": "road"}, {"hz": "名人", "py": "míngrén", "en": "famous person"}, {"hz": "男生", "py": "nánshēng", "en": "boy"}, {"hz": "牛", "py": "niú", "en": "cow"}, {"hz": "女生", "py": "nǚshēng", "en": "girl"}, {"hz": "盘子", "py": "pánzi", "en": "plate"}, {"hz": "啤酒", "py": "píjiǔ", "en": "beer"}, {"hz": "球场", "py": "qiúchǎng", "en": "court, pitch"}, {"hz": "裙子", "py": "qúnzi", "en": "skirt"}, {"hz": "伞", "py": "sǎn", "en": "umbrella"}, {"hz": "沙发", "py": "shāfā", "en": "sofa"}, {"hz": "山", "py": "shān", "en": "mountain"}, {"hz": "勺子", "py": "sháozi", "en": "spoon"}, {"hz": "视频", "py": "shìpín", "en": "video"}, {"hz": "叔叔", "py": "shūshu", "en": "uncle"}, {"hz": "树", "py": "shù", "en": "tree"}, {"hz": "数学", "py": "shùxué", "en": "maths"}, {"hz": "司机", "py": "sījī", "en": "driver"}, {"hz": "太阳", "py": "tàiyáng", "en": "sun"}, {"hz": "体育馆", "py": "tǐyùguǎn", "en": "stadium"}, {"hz": "同事", "py": "tóngshì", "en": "colleague"}, {"hz": "头发", "py": "tóufa", "en": "hair"}, {"hz": "图书馆", "py": "túshūguǎn", "en": "library"}, {"hz": "腿", "py": "tuǐ", "en": "leg"}, {"hz": "碗", "py": "wǎn", "en": "bowl"}, {"hz": "网球", "py": "wǎngqiú", "en": "tennis"}, {"hz": "网站", "py": "wǎngzhàn", "en": "website"}, {"hz": "卫生间", "py": "wèishēngjiān", "en": "bathroom"}, {"hz": "屋子", "py": "wūzi", "en": "room"}, {"hz": "西瓜", "py": "xīguā", "en": "watermelon"}, {"hz": "洗衣机", "py": "xǐyījī", "en": "washing machine"}, {"hz": "香蕉", "py": "xiāngjiāo", "en": "banana"}, {"hz": "箱子", "py": "xiāngzi", "en": "box"}, {"hz": "相机", "py": "xiàngjī", "en": "camera"}, {"hz": "小区", "py": "xiǎoqū", "en": "neighbourhood"}, {"hz": "校园", "py": "xiàoyuán", "en": "campus"}, {"hz": "校长", "py": "xiàozhǎng", "en": "headteacher"}, {"hz": "鞋", "py": "xié", "en": "shoe"}, {"hz": "信用卡", "py": "xìnyòngkǎ", "en": "credit card"}, {"hz": "行李", "py": "xíngli", "en": "luggage"}, {"hz": "羊", "py": "yáng", "en": "sheep"}, {"hz": "叶子", "py": "yèzi", "en": "leaf"}, {"hz": "音乐", "py": "yīnyuè", "en": "music"}, {"hz": "银行", "py": "yínháng", "en": "bank"}, {"hz": "饮料", "py": "yǐnliào", "en": "drink"}, {"hz": "邮件", "py": "yóujiàn", "en": "email"}, {"hz": "游客", "py": "yóukè", "en": "tourist"}, {"hz": "游戏", "py": "yóuxì", "en": "game"}, {"hz": "羽毛球", "py": "yǔmáoqiú", "en": "badminton"}, {"hz": "雨衣", "py": "yǔyī", "en": "raincoat"}, {"hz": "月亮", "py": "yuèliang", "en": "moon"}, {"hz": "运动员", "py": "yùndòngyuán", "en": "athlete"}, {"hz": "照片", "py": "zhàopiàn", "en": "photo"}, {"hz": "纸", "py": "zhǐ", "en": "paper"}, {"hz": "竹子", "py": "zhúzi", "en": "bamboo"}, {"hz": "自行车", "py": "zìxíngchē", "en": "bicycle"}, {"hz": "嘴", "py": "zuǐ", "en": "mouth"}, {"hz": "作业", "py": "zuòyè", "en": "homework"}, {"hz": "奥运会", "py": "Àoyùnhuì", "en": "the Olympic Games"}, {"hz": "北京南站", "py": "Běijīng Nán Zhàn", "en": "Beijing South Railway Station"}, {"hz": "春节", "py": "Chūnjié", "en": "Spring Festival"}, {"hz": "黄河", "py": "Huáng Hé", "en": "the Yellow River"}, {"hz": "南京", "py": "Nánjīng", "en": "Nanjing"}, {"hz": "英国", "py": "Yīngguó", "en": "the UK"}], "4": [{"hz": "乘客", "py": "chéngkè", "en": "passenger"}, {"hz": "厨房", "py": "chúfáng", "en": "kitchen"}, {"hz": "大厅", "py": "dàtīng", "en": "lobby"}, {"hz": "袋子", "py": "dàizi", "en": "bag"}, {"hz": "电动车", "py": "diàndòngchē", "en": "electric scooter"}, {"hz": "肚子", "py": "dùzi", "en": "belly"}, {"hz": "房东", "py": "fángdōng", "en": "landlord"}, {"hz": "风景", "py": "fēngjǐng", "en": "scenery"}, {"hz": "汗", "py": "hàn", "en": "sweat"}, {"hz": "护士", "py": "hùshi", "en": "nurse"}, {"hz": "教师", "py": "jiàoshī", "en": "teacher"}, {"hz": "客户", "py": "kèhù", "en": "client"}, {"hz": "客厅", "py": "kètīng", "en": "living room"}, {"hz": "垃圾", "py": "lājī", "en": "rubbish"}, {"hz": "辣椒", "py": "làjiāo", "en": "chilli"}, {"hz": "毛巾", "py": "máojīn", "en": "towel"}, {"hz": "帽子", "py": "màozi", "en": "hat"}, {"hz": "密码", "py": "mìmǎ", "en": "password"}, {"hz": "签证", "py": "qiānzhèng", "en": "visa"}, {"hz": "巧克力", "py": "qiǎokèlì", "en": "chocolate"}, {"hz": "日记", "py": "rìjì", "en": "diary"}, {"hz": "软件", "py": "ruǎnjiàn", "en": "app"}, {"hz": "身份证", "py": "shēnfènzhèng", "en": "ID card"}, {"hz": "食堂", "py": "shítáng", "en": "canteen"}, {"hz": "食物", "py": "shíwù", "en": "food"}, {"hz": "市场", "py": "shìchǎng", "en": "market"}, {"hz": "手指", "py": "shǒuzhǐ", "en": "finger"}, {"hz": "首都", "py": "shǒudū", "en": "capital city"}, {"hz": "汤", "py": "tāng", "en": "soup"}, {"hz": "午餐", "py": "wǔcān", "en": "lunch"}, {"hz": "鲜花", "py": "xiānhuā", "en": "fresh flowers"}, {"hz": "现金", "py": "xiànjīn", "en": "cash"}, {"hz": "小伙子", "py": "xiǎohuǒzi", "en": "young man"}, {"hz": "研究生", "py": "yánjiūshēng", "en": "postgraduate student"}, {"hz": "阳光", "py": "yángguāng", "en": "sunshine"}, {"hz": "油", "py": "yóu", "en": "oil"}, {"hz": "早餐", "py": "zǎocān", "en": "breakfast"}, {"hz": "证件", "py": "zhèngjiàn", "en": "ID papers"}, {"hz": "植物", "py": "zhíwù", "en": "plant"}, {"hz": "中餐", "py": "zhōngcān", "en": "Chinese food"}, {"hz": "主人", "py": "zhǔrén", "en": "host"}, {"hz": "座位", "py": "zuòwèi", "en": "seat"}, {"hz": "3D打印机", "py": "3D dǎyìnjī", "en": "3D printer"}, {"hz": "AI眼镜", "py": "AI yǎnjìng", "en": "AI glasses"}, {"hz": "安检", "py": "ānjiǎn", "en": "security check"}, {"hz": "鼻子", "py": "bízi", "en": "nose"}, {"hz": "毕业生", "py": "bìyèshēng", "en": "graduate"}, {"hz": "饼干", "py": "bǐnggān", "en": "biscuit"}, {"hz": "操场", "py": "cāochǎng", "en": "sports ground"}, {"hz": "茶叶", "py": "cháyè", "en": "tea leaves"}, {"hz": "厨师", "py": "chúshī", "en": "chef"}, {"hz": "窗户", "py": "chuānghu", "en": "window"}, {"hz": "大巴", "py": "dàbā", "en": "coach (bus)"}, {"hz": "导游", "py": "dǎoyóu", "en": "tour guide"}, {"hz": "道路", "py": "dàolù", "en": "road"}, {"hz": "动车", "py": "dòngchē", "en": "bullet train"}, {"hz": "读者", "py": "dúzhě", "en": "reader"}, {"hz": "队员", "py": "duìyuán", "en": "team member"}, {"hz": "父母", "py": "fùmǔ", "en": "parents"}, {"hz": "父亲", "py": "fùqīn", "en": "father"}, {"hz": "钢琴", "py": "gāngqín", "en": "piano"}, {"hz": "歌手", "py": "gēshǒu", "en": "singer"}, {"hz": "工厂", "py": "gōngchǎng", "en": "factory"}, {"hz": "功夫", "py": "gōngfu", "en": "kung fu"}, {"hz": "共享单车", "py": "gòngxiǎng dānchē", "en": "shared bike"}, {"hz": "顾客", "py": "gùkè", "en": "customer"}, {"hz": "观众", "py": "guānzhòng", "en": "audience"}, {"hz": "广告", "py": "guǎnggào", "en": "advert"}, {"hz": "果汁", "py": "guǒzhī", "en": "juice"}, {"hz": "航班", "py": "hángbān", "en": "flight"}, {"hz": "盒子", "py": "hézi", "en": "box"}, {"hz": "红包", "py": "hóngbāo", "en": "red envelope"}, {"hz": "互联网", "py": "hùliánwǎng", "en": "internet"}, {"hz": "话剧", "py": "huàjù", "en": "stage play"}, {"hz": "火", "py": "huǒ", "en": "fire"}, {"hz": "家长", "py": "jiāzhǎng", "en": "parent"}, {"hz": "健身房", "py": "jiànshēnfáng", "en": "gym"}, {"hz": "奖", "py": "jiǎng", "en": "prize"}, {"hz": "教练", "py": "jiàoliàn", "en": "coach (sports)"}, {"hz": "教授", "py": "jiàoshòu", "en": "professor"}, {"hz": "街道", "py": "jiēdào", "en": "street"}, {"hz": "景区", "py": "jǐngqū", "en": "scenic area"}, {"hz": "镜子", "py": "jìngzi", "en": "mirror"}, {"hz": "剧院", "py": "jùyuàn", "en": "theatre"}, {"hz": "老虎", "py": "lǎohǔ", "en": "tiger"}, {"hz": "老家", "py": "lǎojiā", "en": "hometown"}, {"hz": "旅客", "py": "lǚkè", "en": "traveller"}, {"hz": "律师", "py": "lǜshī", "en": "lawyer"}, {"hz": "盲盒", "py": "mánghé", "en": "blind box"}, {"hz": "毛衣", "py": "máoyī", "en": "sweater"}, {"hz": "美食", "py": "měishí", "en": "good food"}, {"hz": "母亲", "py": "mǔqīn", "en": "mother"}, {"hz": "乒乓球", "py": "pīngpāngqiú", "en": "table tennis"}, {"hz": "葡萄", "py": "pútao", "en": "grape"}, {"hz": "亲戚", "py": "qīnqi", "en": "relative"}, {"hz": "青年", "py": "qīngnián", "en": "young person"}, {"hz": "球队", "py": "qiúduì", "en": "team"}, {"hz": "球迷", "py": "qiúmí", "en": "fan"}, {"hz": "入口", "py": "rùkǒu", "en": "entrance"}, {"hz": "少年", "py": "shàonián", "en": "teenager"}, {"hz": "时间表", "py": "shíjiānbiǎo", "en": "timetable"}, {"hz": "树林", "py": "shùlín", "en": "woods"}, {"hz": "酸奶", "py": "suānnǎi", "en": "yoghurt"}, {"hz": "铁路", "py": "tiělù", "en": "railway"}, {"hz": "图片", "py": "túpiàn", "en": "picture"}, {"hz": "袜子", "py": "wàzi", "en": "socks"}, {"hz": "外套", "py": "wàitào", "en": "jacket"}, {"hz": "晚餐", "py": "wǎncān", "en": "dinner"}, {"hz": "网页", "py": "wǎngyè", "en": "web page"}, {"hz": "网友", "py": "wǎngyǒu", "en": "online friend"}, {"hz": "西红柿", "py": "xīhóngshì", "en": "tomato"}, {"hz": "小吃", "py": "xiǎochī", "en": "snack"}, {"hz": "小说", "py": "xiǎoshuō", "en": "novel"}, {"hz": "兄弟", "py": "xiōngdì", "en": "brothers"}, {"hz": "熊", "py": "xióng", "en": "bear"}, {"hz": "演员", "py": "yǎnyuán", "en": "actor"}, {"hz": "月饼", "py": "yuèbing", "en": "mooncake"}, {"hz": "作家", "py": "zuòjiā", "en": "writer"}, {"hz": "作者", "py": "zuòzhě", "en": "author"}, {"hz": "长城", "py": "Chángchéng", "en": "the Great Wall"}, {"hz": "故宫", "py": "Gùgōng", "en": "the Forbidden City"}, {"hz": "广州", "py": "Guǎngzhōu", "en": "Guangzhou"}, {"hz": "贵州", "py": "Guìzhōu", "en": "Guizhou"}, {"hz": "哈尔滨", "py": "Hā’ěrbīn", "en": "Harbin"}, {"hz": "红烧羊肉", "py": "Hóngshāo Yángròu", "en": "braised lamb"}, {"hz": "辣子鸡", "py": "Làzǐjī", "en": "spicy chilli chicken"}, {"hz": "水煮鱼", "py": "Shuǐzhǔyú", "en": "spicy boiled fish"}, {"hz": "松鼠鳜鱼", "py": "Sōngshǔ Guìyú", "en": "squirrel fish"}, {"hz": "酸汤米线", "py": "Suāntāng Mǐxiàn", "en": "sour soup rice noodles"}, {"hz": "微信", "py": "Wēixìn", "en": "WeChat"}, {"hz": "支付宝", "py": "Zhīfùbǎo", "en": "Alipay"}, {"hz": "北京野生动物园", "py": "Běijīng Yěshēng Dòngwùyuán", "en": "Beijing Wildlife Park"}, {"hz": "除夕", "py": "Chúxī", "en": "New Year's Eve"}, {"hz": "春晚", "py": "Chūnwǎn", "en": "Spring Festival Gala"}, {"hz": "东北虎", "py": "Dōngběihǔ", "en": "Siberian tiger"}, {"hz": "端午节", "py": "Duānwǔjié", "en": "Dragon Boat Festival"}, {"hz": "国家大剧院", "py": "Guójiā Dàjùyuàn", "en": "National Centre for the Performing Arts"}, {"hz": "杭州", "py": "Hángzhōu", "en": "Hangzhou"}, {"hz": "加拿大", "py": "Jiānádà", "en": "Canada"}, {"hz": "京剧", "py": "Jīngjù", "en": "Peking opera"}, {"hz": "孔子", "py": "Kǒngzǐ", "en": "Confucius"}, {"hz": "老舍", "py": "Lǎoshě", "en": "Lao She"}, {"hz": "马可·波罗", "py": "Mǎkě·Bōluó", "en": "Marco Polo"}, {"hz": "马可·波罗游记", "py": "Mǎkě·Bōluó Yóujì", "en": "The Travels of Marco Polo"}, {"hz": "梅兰芳", "py": "Méi Lánfāng", "en": "Mei Lanfang"}, {"hz": "泼水节", "py": "Pōshuǐjié", "en": "Water-Splashing Festival"}, {"hz": "苏州", "py": "Sūzhōu", "en": "Suzhou"}, {"hz": "苏州园林", "py": "Sūzhōu Yuánlín", "en": "Suzhou gardens"}, {"hz": "太极拳", "py": "Tàijíquán", "en": "tai chi"}, {"hz": "唐诗", "py": "Tángshī", "en": "Tang poems"}, {"hz": "唐装", "py": "Tángzhuāng", "en": "Tang suit"}, {"hz": "西湖", "py": "Xī Hú", "en": "West Lake"}, {"hz": "西双版纳", "py": "Xīshuāngbǎnnà", "en": "Xishuangbanna"}, {"hz": "意大利", "py": "Yìdàlì", "en": "Italy"}, {"hz": "元宵节", "py": "Yuánxiāojié", "en": "Lantern Festival"}, {"hz": "中秋节", "py": "Zhōngqiūjié", "en": "Mid-Autumn Festival"}]}};</script>
+<script>// Chinese Corner: Taboo dealer.
+// The words come from window.CC_DATA, which app/build.py fills from content/banks/taboo-words.md.
+// No word lives in this file.
+(function () {
+  "use strict";
+
+  const POOL = window.CC_DATA.taboo;          // { "1": [{hz, py, en}], ... }
+  const LEVELS = ["1", "2", "3", "4"];
+  const PER_CHOICES = [3, 6, 9, 12];
+  const LIMITS = { players: [1, 12], per: [1, 20] };
+  const STORE = "cc-taboo-v1";
+
+  // ---------- state ----------
+  const saved = load();
+  const state = {
+    players: saved.players || 3,
+    per: saved.per || 6,
+    mixed: !!saved.mixed,
+    level: saved.level || "1",
+    playerLevels: saved.playerLevels || [],
+    names: saved.names || [],
+    used: saved.used || { 1: [], 2: [], 3: [], 4: [] },   // words dealt this session
+    hands: saved.hands || null,                           // the current deal
+  };
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; }
+  }
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* private mode: fine */ }
+  }
+
+  // ---------- helpers ----------
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, attrs, ...kids) => {
+    const n = document.createElement(tag);
+    for (const k in attrs || {}) {
+      if (k === "class") n.className = attrs[k];
+      else if (k.startsWith("on")) n.addEventListener(k.slice(2), attrs[k]);
+      else n.setAttribute(k, attrs[k]);
+    }
+    for (const kid of kids) n.append(kid);
+    return n;
+  };
+  const levelOf = (i) => (state.mixed ? state.playerLevels[i] || state.level : state.level);
+  const nameOf = (i) => (state.names[i] || "").trim() || `Player ${i + 1}`;
+  const unused = (lv) => {
+    const u = new Set(state.used[lv]);
+    return POOL[lv].filter((w) => !u.has(w.hz));
+  };
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    const r = new Uint32Array(a.length);
+    crypto.getRandomValues(r);
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = r[i] % (i + 1);
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // How many words each level needs, and whether there are enough.
+  function shortfalls() {
+    const need = {};
+    for (let i = 0; i < state.players; i++) need[levelOf(i)] = (need[levelOf(i)] || 0) + state.per;
+    const out = [];
+    for (const lv in need) {
+      const left = unused(lv).length, total = POOL[lv].length;
+      if (need[lv] > left) out.push({ lv, need: need[lv], left, total });
+    }
+    return out;
+  }
+
+  // ---------- setup screen ----------
+  function renderSetup() {
+    $("players").textContent = state.players;
+    $("per").textContent = state.per;
+    for (const s of document.querySelectorAll(".stepper")) {
+      const key = s.dataset.for, [lo, hi] = LIMITS[key];
+      s.querySelector('[data-step="-1"]').disabled = state[key] <= lo;
+      s.querySelector('[data-step="1"]').disabled = state[key] >= hi;
+    }
+
+    const chips = $("per-chips");
+    chips.replaceChildren(...PER_CHOICES.map((n) =>
+      el("button", { type: "button", class: "chip", "aria-pressed": String(state.per === n),
+        onclick: () => { state.per = n; changed(); } }, String(n))));
+
+    $("mixed").checked = state.mixed;
+    $("one-level").hidden = state.mixed;
+    $("one-level").replaceChildren(...levelChips(state.level, (lv) => { state.level = lv; changed(); }));
+
+    const rows = $("player-levels");
+    rows.hidden = !state.mixed;
+    if (state.mixed) {
+      const keep = document.activeElement && document.activeElement.dataset.player;
+      rows.replaceChildren(...Array.from({ length: state.players }, (_, i) => {
+        const input = el("input", { type: "text", placeholder: `Player ${i + 1}`, "aria-label": `Name of player ${i + 1}`,
+          "data-player": String(i), maxlength: "20" });
+        input.value = state.names[i] || "";
+        input.addEventListener("input", () => { state.names[i] = input.value; save(); });
+        return el("div", { class: "player-row" }, input,
+          el("div", { class: "levels" }, ...levelChips(levelOf(i), (lv) => { state.playerLevels[i] = lv; changed(); })));
+      }));
+      if (keep) { const again = rows.querySelector(`[data-player="${keep}"]`); if (again) again.focus(); }
+    }
+
+    const short = shortfalls(), msg = $("setup-msg");
+    if (short.length) {
+      msg.className = "msg";
+      msg.textContent = short.map((s) => s.need > s.total
+        ? `HSK ${s.lv} has only ${s.total} words. You asked for ${s.need}. Choose fewer players or fewer words.`
+        : `HSK ${s.lv} has ${s.left} ${s.left === 1 ? "word" : "words"} left this session. You asked for ${s.need}. Choose fewer words, or tap Start fresh.`).join(" ");
+    } else {
+      msg.className = "msg ok";
+      msg.textContent = `${state.players} × ${state.per} = ${state.players * state.per} words. No one gets the same word.`;
+    }
+    $("deal").disabled = short.length > 0;
+  }
+
+  function levelChips(current, pick) {
+    return LEVELS.map((lv) => {
+      const left = unused(lv).length;
+      return el("button", { type: "button", class: "chip", "aria-pressed": String(current === lv), onclick: () => pick(lv) },
+        `HSK ${lv}`, el("span", { class: "left" }, `${left} left`));
+    });
+  }
+
+  function changed() {
+    if (state.mixed) {
+      for (let i = 0; i < state.players; i++) state.playerLevels[i] = state.playerLevels[i] || state.level;
+    }
+    save();
+    renderSetup();
+    renderUsed();
+  }
+
+  // ---------- deal ----------
+  function deal() {
+    if (shortfalls().length) return renderSetup();
+    const decks = {};
+    const hands = [];
+    for (let i = 0; i < state.players; i++) {
+      const lv = levelOf(i);
+      decks[lv] = decks[lv] || shuffle(unused(lv));
+      const words = decks[lv].splice(0, state.per);
+      state.used[lv].push(...words.map((w) => w.hz));
+      hands.push({ name: nameOf(i), level: lv, words, seen: false });
+    }
+    state.hands = hands;
+    save();
+    showDealt();
+  }
+
+  function showDealt() {
+    $("setup").hidden = true;
+    $("dealt").hidden = false;
+    renderHands();
+    renderUsed();
+    window.scrollTo(0, 0);
+  }
+
+  function renderHands() {
+    $("hands").replaceChildren(...state.hands.map((h, i) =>
+      el("div", { class: "hand" + (h.seen ? " seen" : "") },
+        el("div", { class: "hand-name" }, h.name, el("span", { class: "hand-level" }, `HSK ${h.level} · ${h.words.length} words`)),
+        el("button", { type: "button", class: "show", onclick: () => reveal(i) }, "Show"),
+        el("button", { type: "button", class: "copy", onclick: () => copy(i) }, CAN_SHARE ? "Send" : "Copy"))));
+    $("send-word").textContent = CAN_SHARE ? "Send" : "Copy";
+  }
+
+  function reveal(i) {
+    const h = state.hands[i];
+    $("reveal-name").textContent = h.name;
+    $("reveal-level").textContent = `HSK ${h.level}`;
+    $("reveal-words").replaceChildren(...h.words.map((w) =>
+      charsOnly(h.level)
+        ? el("li", { class: "chars-only" }, el("div", { class: "zh", lang: "zh-CN" }, w.hz))
+        : el("li", {}, el("div", { class: "zh", lang: "zh-CN" }, w.hz), el("div", { class: "py" }, w.py), el("div", { class: "en" }, w.en))));
+    $("reveal").hidden = false;
+    $("hide").focus({ preventScroll: true });
+    $("reveal").scrollTop = 0;
+    h.seen = true;
+    save();
+  }
+
+  function hide() {
+    $("reveal").hidden = true;
+    renderHands();
+  }
+
+  // HSK 3 and 4 players see characters only: no pinyin, no English. Her decision, 5 Nov 2026.
+  function charsOnly(level) { return Number(level) >= 3; }
+
+  function textFor(h) {
+    const line = (w, k) => charsOnly(h.level) ? `${k + 1}. ${w.hz}` : `${k + 1}. ${w.hz} ${w.py} – ${w.en}`;
+    return [`Taboo · ${h.name} · HSK ${h.level}`, "", ...h.words.map(line)].join("\n");
+  }
+
+  // On phones the share sheet goes straight to WhatsApp. Elsewhere, copy to the clipboard.
+  // If neither works, show the text so it can be copied by hand. Never a dead end.
+  const CAN_SHARE = !!navigator.share && matchMedia("(pointer: coarse)").matches;
+
+  async function copy(i) {
+    const h = state.hands[i], text = textFor(h);
+    h.seen = true;
+    save();
+    renderHands();
+    if (CAN_SHARE) {
+      try { await navigator.share({ text }); return; }
+      catch (e) { if (e.name === "AbortError") return; }   // they closed the sheet: fine
+    }
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {
+      const t = el("textarea", { style: "position:fixed;opacity:0" });
+      t.value = text; document.body.append(t); t.select();
+      try { ok = document.execCommand("copy"); } catch (e2) { ok = false; }
+      t.remove();
+    }
+    if (ok) toast(`${h.name}'s words copied. Paste them in WhatsApp.`);
+    else showText(h, text);
+  }
+
+  function showText(h, text) {
+    $("reveal-name").textContent = h.name;
+    $("reveal-level").textContent = "Copy this";
+    const box = el("textarea", { class: "copy-box", readonly: "", rows: String(h.words.length + 3), "aria-label": "Words to copy" });
+    box.value = text;
+    $("reveal-words").replaceChildren(el("li", { class: "copy-li" },
+      el("p", { class: "copy-help" }, "Press and hold the text, choose Select all, then Copy."), box));
+    $("reveal").hidden = false;
+    box.focus({ preventScroll: true });
+    box.select();
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.add("on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("on"), 2600);
+  }
+
+  // ---------- session ----------
+  function renderUsed() {
+    const n = LEVELS.reduce((s, lv) => s + state.used[lv].length, 0);
+    $("used-count").textContent = n ? `${n} words used this session` : "No words used yet";
+    $("reset").hidden = n === 0;
+  }
+
+  function reset() {
+    if (!confirm("Start fresh? All words become available again.")) return;
+    state.used = { 1: [], 2: [], 3: [], 4: [] };
+    state.hands = null;
+    save();
+    $("dealt").hidden = true;
+    $("setup").hidden = false;
+    renderSetup();
+    renderUsed();
+  }
+
+  // ---------- wiring ----------
+  for (const s of document.querySelectorAll(".stepper")) {
+    s.addEventListener("click", (e) => {
+      const b = e.target.closest(".step");
+      if (!b) return;
+      const key = s.dataset.for, [lo, hi] = LIMITS[key];
+      state[key] = Math.min(hi, Math.max(lo, state[key] + Number(b.dataset.step)));
+      changed();
+    });
+  }
+  $("mixed").addEventListener("change", (e) => { state.mixed = e.target.checked; changed(); });
+  $("deal").addEventListener("click", deal);
+  $("again").addEventListener("click", () => {
+    if (shortfalls().length) { $("dealt").hidden = true; $("setup").hidden = false; renderSetup(); return; }
+    deal();
+    toast("New words dealt.");
+  });
+  $("back").addEventListener("click", () => { $("dealt").hidden = true; $("setup").hidden = false; renderSetup(); });
+  $("hide").addEventListener("click", hide);
+  $("reset").addEventListener("click", reset);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("reveal").hidden) hide(); });
+
+  changed();
+  if (state.hands) showDealt();
+})();
+</script>
+</body>
+</html>
